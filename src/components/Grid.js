@@ -1,0 +1,105 @@
+import React, { useState } from "react";
+import "../styles.css";
+import Card from "./Card";
+
+export default function Grid({ movies, watchlist, togglelist }) {
+  const [Search, setSearch] = useState("");
+  const [genre, setGenre] = useState("All Genres");
+  const [rating, setRating] = useState("All");
+
+  const changeSearch = (e) => {
+    setSearch(e.target.value);
+  };
+
+  const genreChange = (e) => {
+    setGenre(e.target.value);
+  };
+  const ratingChange = (e) => {
+    setRating(e.target.value);
+  };
+
+  const matchesGenre = (movie, genre) => {
+    return (
+      genre === "All Genres" ||
+      movie.genre.toLowerCase() === genre.toLowerCase()
+    );
+  };
+
+  const matchesSearchTerm = (movie, Search) => {
+    return movie.title.toLowerCase().includes(Search.toLowerCase());
+  };
+
+  const matchesRating = (movie, rating) => {
+    switch (rating) {
+      case "All":
+        return true;
+
+      case "Good":
+        return movie.rating >= 8;
+      case "ok":
+        return movie.rating >= 5 && movie.rating < 8;
+      case "Bad":
+        return movie.rating < 5;
+
+      default:
+        return false;
+    }
+  };
+
+  const filteredMovies = movies.filter(
+    (movie) =>
+      matchesGenre(movie, genre) &&
+      matchesRating(movie, rating) &&
+      matchesSearchTerm(movie, Search)
+  );
+  return (
+    <div>
+      <input
+        type="text"
+        className="search-input"
+        placeholder="Search Movies"
+        value={Search}
+        onChange={changeSearch}
+      ></input>
+      <div className="filter-bar">
+        <div className="filter-slot">
+          <label>Genre</label>
+          <select
+            className="filter-dropdown"
+            value={genre}
+            onChange={genreChange}
+          >
+            <option>All</option>
+            <option>Action</option>
+            <option>Fantasy</option>
+            <option>Horror</option>
+            <option>Comedy</option>
+          </select>
+        </div>
+        <div className="filter-slot">
+          <label>Rating</label>
+          <select
+            className="filter-dropdown"
+            value={rating}
+            onChange={ratingChange}
+          >
+            <option>All</option>
+            <option>Good</option>
+            <option>ok</option>
+            <option>Bad</option>
+          </select>
+        </div>
+      </div>
+      <div className="movies-grid">
+        {filteredMovies.map((movie) => (
+          <Card
+            movie={movie}
+            key={movie.id}
+            togglelist={togglelist}
+            islisted={watchlist.includes(movie.id)}
+          ></Card>
+        ))}
+      </div>
+    </div>
+  );
+}
